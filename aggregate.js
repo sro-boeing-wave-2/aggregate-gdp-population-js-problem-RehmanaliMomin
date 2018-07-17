@@ -4,23 +4,19 @@
 */
 const fs = require('fs');
 
-const reader = (filepath) => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(filepath, 'utf8', (err, data) => {
-      resolve(data);
-      reject(err);
-    });
+const reader = filepath => new Promise((resolve, reject) => {
+  fs.readFile(filepath, 'utf8', (err, data) => {
+    resolve(data);
+    reject(err);
   });
-};
+});
 
-const writer = (filepath, data) => {
-  return new Promise((resolve, reject) => {
-    fs.writeFile(filepath, JSON.stringify(data), function (err) {
-      if (err) reject('error');
-      else resolve('success');
-    });
+const writer = (filepath, data) => new Promise((resolve, reject) => {
+  fs.writeFile(filepath, JSON.stringify(data), (err) => {
+    if (err) reject(err);
+    else resolve(data);
   });
-};
+});
 
 const aggregate = (filepath) => {
   Promise.all([reader(filepath), reader('data/continent-country.json')]).then((values) => {
@@ -34,11 +30,11 @@ const aggregate = (filepath) => {
       const country = row.split(',')[countryNameIndex];
       if (outputString[jsonMapping[country]] === undefined) {
         outputString[jsonMapping[country]] = {};
-        outputString[jsonMapping[country]]['POPULATION_2012'] = parseFloat(row.split(',')[populationIndex]);
-        outputString[jsonMapping[country]]['GDP_2012'] = parseFloat(row.split(',')[gdpIndex]);
+        outputString[jsonMapping[country]].POPULATION_2012 = parseFloat(row.split(',')[populationIndex]);
+        outputString[jsonMapping[country]].GDP_2012 = parseFloat(row.split(',')[gdpIndex]);
       } else {
-        outputString[jsonMapping[country]]['POPULATION_2012'] += parseFloat(row.split(',')[populationIndex]);
-        outputString[jsonMapping[country]]['GDP_2012'] += parseFloat(row.split(',')[gdpIndex]);
+        outputString[jsonMapping[country]].POPULATION_2012 += parseFloat(row.split(',')[populationIndex]);
+        outputString[jsonMapping[country]].GDP_2012 += parseFloat(row.split(',')[gdpIndex]);
       }
     });
     delete outputString[undefined];
