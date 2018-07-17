@@ -12,13 +12,13 @@ const reader = filepath => new Promise((resolve, reject) => {
 });
 
 const writer = (filepath, data) => new Promise((resolve, reject) => {
-  fs.writeFile(filepath, JSON.stringify(data), (err) => {
+  fs.writeFile(filepath, data, (err) => {
     if (err) reject(err);
     else resolve(data);
   });
 });
 
-const aggregate = (filepath) => {
+const aggregate = filepath => new Promise((res, rej) => {
   Promise.all([reader(filepath), reader('data/continent-country.json')]).then((values) => {
     const [header, ...rows] = values[0].replace(/"/g, '').split('\n');
     const jsonMapping = JSON.parse(values[1]);
@@ -38,8 +38,12 @@ const aggregate = (filepath) => {
       }
     });
     delete outputString[undefined];
-    writer('output/output.json', outputString);
+
+    writer('output/output.json', JSON.stringify(outputString)).then(
+      data => res(data),
+    ).catch(rej);
   });
-};
+});
 aggregate('data/datafile.csv');
+
 module.exports = aggregate;
